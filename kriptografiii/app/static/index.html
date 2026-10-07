@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRYPTODEX — Suite Kriptosistem & Kriptanalisis PSDKU Informatika</title>
+  <meta name="description" content="Aplikasi Web Kriptografi Klasik (7 Cipher) dan Kriptanalisis Abjad-Tunggal untuk Tugas Kriptografi PSDKU Informatika">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Header & Navigation -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-icon">🔐</div>
+        <div>
+          <h1 class="brand-title">CRYPTODEX</h1>
+          <div class="brand-tag">Kriptografi PSDKU Informatika &bull; Sem. Ganjil 2026/2027</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" aria-label="Main Navigation">
+        <button type="button" class="nav-tab-btn active" data-tab="tab-ciphers">
+          <span>🔐</span> 7 Kriptosistem
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="tab-cryptanalysis">
+          <span>🕵️</span> Kriptanalisis
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="tab-math">
+          <span>🧮</span> Kalkulator Kripto
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="tab-team">
+          <span>👥</span> Kelompok &amp; Info
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- ===================================================================
+         TAB 1: 7 KRIPTOSISTEM (BAGIAN A)
+         =================================================================== -->
+    <section id="tab-ciphers" class="tab-content active" aria-label="Bagian A: Kriptosistem">
+      
+      <!-- Mode Switcher Bar -->
+      <div class="mode-switcher-bar">
+        <button type="button" class="mode-tab-btn active" id="btn-mode-text" data-mode="text">
+          <span>📝</span> Mode Pesan Teks (26 Alfabet A-Z, Modulo 26)
+        </button>
+        <button type="button" class="mode-tab-btn" id="btn-mode-binary" data-mode="binary">
+          <span>📁</span> Mode Berkas Sembarang / Binary File (Byte Level, Modulo 256 / XOR)
+        </button>
+      </div>
+
+      <!-- ================= SUBVIEW 1: MODE PESAN TEKS ================= -->
+      <div id="subview-text-mode" class="subview active">
+        <!-- Cipher Selector Pills -->
+        <div class="cipher-selector-grid">
+          <button type="button" class="cipher-pill active" data-cipher="shift">
+            <span class="pill-number">Cipher 1</span>
+            <span class="pill-name">Shift Cipher</span>
+          </button>
+          <button type="button" class="cipher-pill" data-cipher="substitution">
+            <span class="pill-number">Cipher 2</span>
+            <span class="pill-name">Substitution</span>
+          </button>
+          <button type="button" class="cipher-pill" data-cipher="affine">
+            <span class="pill-number">Cipher 3</span>
+            <span class="pill-name">Affine Cipher</span>
+          </button>
+          <button type="button" class="cipher-pill" data-cipher="vigenere">
+            <span class="pill-number">Cipher 4</span>
+            <span class="pill-name">Vigenere Cipher</span>
+          </button>
+          <button type="button" class="cipher-pill" data-cipher="hill">
+            <span class="pill-number">Cipher 5</span>
+            <span class="pill-name">Hill Cipher</span>
+          </button>
+          <button type="button" class="cipher-pill" data-cipher="permutation">
+            <span class="pill-number">Cipher 6</span>
+            <span class="pill-name">Permutation</span>
+          </button>
+          <button type="button" class="cipher-pill" data-cipher="otp">
+            <span class="pill-number">Cipher 7</span>
+            <span class="pill-name">One-Time Pad</span>
+          </button>
+        </div>
+
+        <!-- Two-column workspace -->
+        <div class="layout-2col">
+          
+          <!-- Left: Input & Key Configuration -->
+          <div class="card">
+            <div class="card-title">
+              <span>📝</span> Masukan Pesan (Plaintext / Ciphertext)
+            </div>
+            <p class="card-subtitle">
+              Menerima teks langsung dari keyboard atau upload berkas teks / file sembarang.
+            </p>
+
+            <!-- Input Mode Switcher -->
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <button type="button" class="btn btn-outline btn-sm active" id="btn-mode-keyboard">⌨️ Keyboard</button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-mode-file">📁 Upload Berkas Pesan</button>
+            </div>
+
+            <!-- File Dropzone -->
+            <div id="cipher-dropzone-container" style="display: none; margin-bottom: 14px;">
+              <div class="dropzone" id="cipher-dropzone">
+                <div class="dropzone-icon">📥</div>
+                <div class="dropzone-text">Klik atau seret file teks pesan (apapun ekstensinya) ke sini</div>
+                <div class="dropzone-filename" id="cipher-dropzone-filename">Belum ada file dipilih</div>
+                <input type="file" id="cipher-file-input" accept="*" style="display: none;">
+              </div>
+            </div>
+
+            <!-- Textarea Input -->
+            <div class="form-group">
+              <div class="form-label">
+                <span>Isi Pesan:</span>
+                <span id="cipher-input-char-count" class="char-counter">0 Karakter</span>
+              </div>
+              <textarea id="cipher-input-text" class="textarea-ctrl" placeholder="Ketik pesan Anda di sini, contoh: HELLO WORLD THIS IS A TEST"></textarea>
+            </div>
+
+            <!-- Dynamic Key Configuration Box -->
+            <div id="key-input-container">
+              <!-- Dynamically populated by Ciphers.renderKeyInput() -->
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary" id="btn-cipher-encrypt">
+                <span>🔒</span> Enkripsi
+              </button>
+              <button type="button" class="btn btn-secondary" id="btn-cipher-decrypt">
+                <span>🔓</span> Dekripsi
+              </button>
+              <button type="button" class="btn btn-outline" id="btn-cipher-clear">
+                <span>🗑️</span> Bersihkan
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Output & Step-by-Step Breakdown -->
+          <div>
+            <div class="card output-card">
+              <div class="output-header">
+                <div class="card-title" style="margin-bottom: 0;">
+                  <span>✨</span> Hasil Operasi
+                </div>
+                <div class="output-actions">
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-copy-result" title="Salin ke Clipboard">
+                    📋 Salin
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-download-result" title="Simpan sebagai file">
+                    💾 Download
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Teks Keluaran:</span>
+                <span id="cipher-output-length" class="char-counter">0 Karakter</span>
+              </div>
+
+              <!-- Output Box -->
+              <div class="output-display" id="cipher-output-display">Hasil enkripsi/dekripsi akan tampil di sini...</div>
+            </div>
+
+            <!-- Mathematical Step Breakdown Accordion -->
+            <div class="math-accordion" id="cipher-math-accordion">
+              <div class="math-accordion-header">
+                <span>📐 Perhitungan Matematis &amp; Detail Langkah</span>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan);">Buka / Tutup Detail &blacktriangledown;</span>
+              </div>
+              <div class="math-accordion-content" id="cipher-math-content">
+                Jalankan enkripsi/dekripsi untuk melihat langkah kalkulasi.
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= SUBVIEW 2: MODE BERKAS SEMBARANG (BINARY FILE) ================= -->
+      <div id="subview-binary-mode" class="subview">
+        
+        <!-- Binary Cipher Selector Pills -->
+        <div class="cipher-selector-grid">
+          <button type="button" class="cipher-pill active" data-bin-cipher="shift">
+            <span class="pill-number">Cipher 1</span>
+            <span class="pill-name">Binary Shift</span>
+          </button>
+          <button type="button" class="cipher-pill" data-bin-cipher="substitution">
+            <span class="pill-number">Cipher 2</span>
+            <span class="pill-name">Binary Substitution</span>
+          </button>
+          <button type="button" class="cipher-pill" data-bin-cipher="affine">
+            <span class="pill-number">Cipher 3</span>
+            <span class="pill-name">Binary Affine</span>
+          </button>
+          <button type="button" class="cipher-pill" data-bin-cipher="vigenere">
+            <span class="pill-number">Cipher 4</span>
+            <span class="pill-name">Binary Vigenere</span>
+          </button>
+          <button type="button" class="cipher-pill" data-bin-cipher="hill">
+            <span class="pill-number">Cipher 5</span>
+            <span class="pill-name">Binary Hill (Mod 256)</span>
+          </button>
+          <button type="button" class="cipher-pill" data-bin-cipher="permutation">
+            <span class="pill-number">Cipher 6</span>
+            <span class="pill-name">Binary Permutation</span>
+          </button>
+          <button type="button" class="cipher-pill" data-bin-cipher="otp">
+            <span class="pill-number">Cipher 7</span>
+            <span class="pill-name">Binary One-Time Pad</span>
+          </button>
+        </div>
+
+        <div class="layout-2col">
+          
+          <!-- Left: Arbitrary File Upload & Key Input -->
+          <div class="card">
+            <div class="card-title">
+              <span>📁</span> Unggah Berkas Sembarang (Semua Format)
+            </div>
+            <p class="card-subtitle">
+              Mendukung semua berkas tanpa batasan: PDF, Gambar (PNG, JPG), Dokumen (DOCX), Arsip (ZIP), Teks (.txt), Biner (.bin), dll.
+            </p>
+
+            <!-- Dropzone for any file -->
+            <div class="dropzone" id="bin-file-dropzone">
+              <div class="dropzone-icon">📤</div>
+              <div class="dropzone-text">Klik atau seret berkas apa saja ke sini</div>
+              <div class="dropzone-filename" id="bin-file-dropzone-name">Belum ada file dipilih</div>
+              <input type="file" id="bin-file-input" accept="*" style="display: none;">
+            </div>
+
+            <!-- File Metadata Card -->
+            <div id="bin-file-meta-card" class="file-meta-card" style="display: none;">
+              <div><strong>Nama Berkas:</strong> <span id="bin-meta-filename">-</span></div>
+              <div><strong>Ukuran:</strong> <span id="bin-meta-size">-</span></div>
+              <div style="margin-top: 4px;"><strong>SHA-256 Asli:</strong></div>
+              <div class="hash-code" id="bin-meta-sha256">-</div>
+            </div>
+
+            <!-- Dynamic Key Box for Binary Mode -->
+            <div id="bin-key-container" style="margin-top: 14px;">
+              <!-- Populated by FileCiphers.renderKeyInput() -->
+            </div>
+
+            <!-- Actions -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary" id="btn-bin-encrypt">
+                <span>🔒</span> Enkripsi Berkas
+              </button>
+              <button type="button" class="btn btn-secondary" id="btn-bin-decrypt">
+                <span>🔓</span> Dekripsi Berkas
+              </button>
+              <button type="button" class="btn btn-outline" id="btn-bin-clear">
+                <span>🗑️</span> Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Processed File Result & Reversibility Verification -->
+          <div>
+            <div class="card output-card">
+              <div class="output-header">
+                <div class="card-title" style="margin-bottom: 0;">
+                  <span>📦</span> Hasil Berkas Terproses
+                </div>
+                <span id="bin-result-status-badge" class="badge badge-cyan">Siap</span>
+              </div>
+              <p class="card-subtitle">
+                Berkas terenkripsi / terdekripsi siap diunduh kembali ke perangkat Anda.
+              </p>
+
+              <div id="bin-result-empty" style="padding: 30px; text-align: center; color: var(--text-subtle);">
+                Belum ada berkas yang diproses. Unggah berkas di sebelah kiri lalu klik Enkripsi atau Dekripsi.
+              </div>
+
+              <div id="bin-result-details" style="display: none;">
+                <div class="file-meta-card">
+                  <div><strong>Nama Berkas Output:</strong> <span id="bin-out-filename" style="color: var(--accent-cyan); font-weight: bold;">-</span></div>
+                  <div><strong>Ukuran Output:</strong> <span id="bin-out-size">-</span></div>
+                  <div style="margin-top: 6px;"><strong>SHA-256 Hasil:</strong></div>
+                  <div class="hash-code" id="bin-out-sha256">-</div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                  <button type="button" class="btn btn-primary" id="btn-bin-download" style="width: 100%;">
+                    <span>📥</span> Unduh Berkas (<span id="bin-btn-download-name">-</span>)
+                  </button>
+                </div>
+
+                <!-- Reversibility Verification Card -->
+                <div id="bin-reversibility-box" class="reversibility-box" style="display: none;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.2rem;">🛡️</span>
+                    <strong style="color: var(--accent-green);">Verifikasi Integritas Reversibel (100% Bit-for-Bit Identik):</strong>
+                  </div>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    Nilai hash SHA-256 dari berkas hasil dekripsi persis identik dengan berkas sebelum enkripsi.
+                  </p>
+                  <div style="font-size: 0.75rem; margin-top: 6px;">
+                    <div>Hash Input: <span class="hash-code" id="bin-rev-orig">-</span></div>
+                    <div style="margin-top: 3px;">Hash Output: <span class="hash-code" id="bin-rev-out">-</span></div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================================
+         TAB 2: KRIPTANALISIS ABJAD-TUNGGAL (BAGIAN B)
+         =================================================================== -->
+    <section id="tab-cryptanalysis" class="tab-content" aria-label="Bagian B: Kriptanalisis">
+      
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h2 class="card-title"><span>🕵️</span> Kriptanalisis Cipher Abjad-Tunggal</h2>
+            <p class="card-subtitle" style="margin-bottom: 0;">
+              Analisis frekuensi, deteksi Index of Coincidence (IoC), pencarian otomatis dengan Hill Climbing, serta Workbench substitusi interaktif.
+            </p>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <label for="ca-lang-select" style="font-size: 0.85rem; color: var(--text-muted);">Bahasa Acuan:</label>
+            <select id="ca-lang-select" class="input-ctrl" style="width: auto; padding: 6px 12px; font-weight: 600;">
+              <option value="id" selected>🇮🇩 Bahasa Indonesia</option>
+              <option value="en">🇬🇧 English</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ciphertext Input Area -->
+        <div class="form-group" style="margin-top: 18px;">
+          <div class="form-label">
+            <span>Ciphertext Target (Kunci Tidak Diketahui):</span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-ca-upload-file">📁 Upload Berkas</button>
+              <input type="file" id="ca-file-input" style="display: none;" accept="*">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-ca-sample-id">Contoh Teks ID</button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-ca-sample-en">Contoh Teks EN</button>
+            </div>
+          </div>
+          <textarea id="ca-ciphertext-input" class="textarea-ctrl" style="min-height: 100px;" placeholder="Tempel atau unggah berkas ciphertext substitusi yang ingin dianalisis di sini..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-primary" id="btn-ca-analyze">
+            <span>📊</span> Hitung Analisis Frekuensi &amp; IoC
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-ca-autocrack">
+            <span>🚀</span> Jalankan Kriptanalisis Otomatis (Hill Climbing)
+          </button>
+        </div>
+
+        <!-- Auto-Crack Result Notification Box -->
+        <div id="ca-autocrack-result" style="display: none; margin-top: 20px; padding: 16px; background: rgba(121, 40, 202, 0.15); border: 1px solid var(--accent-purple); border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="color: #c084fc;">🎯 Hasil Kriptanalisis Otomatis:</strong>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-ca-apply-auto-key">
+              📥 Terapkan Kunci ke Interactive Workbench
+            </button>
+          </div>
+          <div style="font-size: 0.85rem; font-family: var(--font-mono); line-height: 1.6;">
+            <div>Kunci Substitusi Terbaik: <strong id="ca-auto-key" style="color: var(--accent-cyan);">-</strong></div>
+            <div>Skor Fitness: <span id="ca-auto-score">-</span> | Waktu Eksekusi: <span id="ca-auto-time">-</span></div>
+            <div style="margin-top: 6px;">Pratinjau Dekripsi:</div>
+            <div id="ca-auto-preview" style="background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 4px; margin-top: 4px; color: #38bdf8;">-</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Frequency Stats & Charts -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-title">
+          <span>📊</span> Distribusi Frekuensi Huruf (Ciphertext vs Acuan Bahasa)
+        </div>
+        <p class="card-subtitle">
+          Batang Cyan = Frekuensi Teramati di Ciphertext (%) | Batang Abu-abu = Frekuensi Standar Bahasa (%)
+        </p>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-title">Total Karakter</div>
+            <div class="stat-value" id="ca-total-chars">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-title">Index of Coincidence (IoC)</div>
+            <div class="stat-value" id="ca-ioc-val">0.0000</div>
+          </div>
+          <div class="stat-item" style="grid-column: span 2;">
+            <div class="stat-title">Interpretasi IoC</div>
+            <div style="font-size: 0.9rem; color: var(--accent-cyan); margin-top: 6px;" id="ca-ioc-note">
+              Masukkan teks dan klik 'Hitung Analisis Frekuensi' untuk mengevaluasi monoalfabetik.
+            </div>
+          </div>
+        </div>
+
+        <!-- Frequency Bars Container -->
+        <div class="freq-chart-container">
+          <div class="freq-bars" id="ca-freq-bars-container">
+            <!-- Dynamically populated 26 bar groups -->
+          </div>
+        </div>
+
+        <!-- N-Gram Tables Side-by-side -->
+        <div class="layout-2col" style="margin-top: 20px;">
+          <div>
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--accent-cyan);">Top Bigram (2 Huruf)</h3>
+            <table class="table-crypto">
+              <thead>
+                <tr>
+                  <th>Ciphertext</th>
+                  <th>Standar Bahasa Acuan</th>
+                </tr>
+              </thead>
+              <tbody id="ca-bigram-tbody">
+                <tr><td colspan="2" style="color: var(--text-subtle);">Belum dianalisis</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px; color: #c084fc;">Top Trigram (3 Huruf)</h3>
+            <table class="table-crypto">
+              <thead>
+                <tr>
+                  <th>Ciphertext</th>
+                  <th>Standar Bahasa Acuan</th>
+                </tr>
+              </thead>
+              <tbody id="ca-trigram-tbody">
+                <tr><td colspan="2" style="color: var(--text-subtle);">Belum dianalisis</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Interactive Letter Mapping Workbench -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 class="card-title"><span>🛠️</span> Interactive Substitution Workbench</h2>
+            <p class="card-subtitle" style="margin-bottom: 0;">
+              Petakan huruf Ciphertext ke tebakan Plaintext secara manual atau terapkan dari Auto-Crack.
+            </p>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-ca-reset-map">
+            🔄 Reset Semua Pemetaan
+          </button>
+        </div>
+
+        <!-- 26 Letter Pair Inputs -->
+        <div class="substitution-grid" id="ca-substitution-grid">
+          <!-- Dynamically populated 26 pairs -->
+        </div>
+
+        <!-- Live Decrypted Preview -->
+        <div style="margin-top: 20px;">
+          <div class="form-label">
+            <span>Pratinjau Plaintext Real-Time:</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">
+              Huruf <span style="color: var(--accent-green); font-weight: bold;">HIJAU</span> = Sudah Ditebak &bull; Huruf <span style="color: var(--text-subtle);">ABU-ABU</span> = Belum Ditebak
+            </span>
+          </div>
+          <div class="live-preview-box" id="ca-live-preview">
+            Plaintext hasil tebakan akan muncul di sini secara real-time...
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================================
+         TAB 3: KALKULATOR & ALJABAR KRIPTO (MATH EXPLORER)
+         =================================================================== -->
+    <section id="tab-math" class="tab-content" aria-label="Kalkulator Kripto">
+      
+      <div class="layout-2col">
+        
+        <!-- Extended Euclidean Algorithm -->
+        <div class="card">
+          <h2 class="card-title"><span>📐</span> Extended Euclidean Algorithm (EGCD)</h2>
+          <p class="card-subtitle">
+            Menghitung gcd(a, m), relasi Bezout a&times;x + m&times;y = gcd, dan invers perkalian a<sup>-1</sup> mod m.
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div>
+              <label class="form-label" for="egcd-a">Nilai a:</label>
+              <input type="number" id="egcd-a" class="input-ctrl" value="7">
+            </div>
+            <div>
+              <label class="form-label" for="egcd-m">Modulo m:</label>
+              <input type="number" id="egcd-m" class="input-ctrl" value="26">
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary" id="btn-calc-egcd">
+            <span>🧮</span> Hitung EGCD &amp; Invers Modulo
+          </button>
+
+          <div id="egcd-result-box" style="display: none; margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.8;">
+            <div><strong>gcd(a, m):</strong> <span id="egcd-gcd-val" style="color: var(--accent-cyan); font-weight: bold;">-</span></div>
+            <div><strong>Relasi Bezout:</strong> <code id="egcd-equation">-</code></div>
+            <div><strong>Invers Modulo (a<sup>-1</sup> mod m):</strong> <span id="egcd-inv-val" style="color: var(--accent-green); font-weight: bold;">-</span></div>
+            <div><strong>Status Koprima:</strong> <span id="egcd-coprime-status">-</span></div>
+          </div>
+        </div>
+
+        <!-- Modular Matrix Inverter -->
+        <div class="card">
+          <h2 class="card-title"><span>🔢</span> Invers Matriks Modulo 26 (Hill Cipher)</h2>
+          <p class="card-subtitle">
+            Menghitung determinan, adjugate matrix, dan invers matriks modular K<sup>-1</sup> mod 26.
+          </p>
+
+          <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center;">
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Ukuran Matriks:</label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="radio" name="math-mat-dim" value="2" checked> 2 &times; 2
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="radio" name="math-mat-dim" value="3"> 3 &times; 3
+            </label>
+          </div>
+
+          <div id="math-matrix-grid-container" style="margin-bottom: 16px;">
+            <div class="matrix-grid-2x2">
+              <input type="number" class="matrix-cell" id="mm-0-0" value="3">
+              <input type="number" class="matrix-cell" id="mm-0-1" value="3">
+              <input type="number" class="matrix-cell" id="mm-1-0" value="2">
+              <input type="number" class="matrix-cell" id="mm-1-1" value="5">
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-secondary" id="btn-calc-matrix-inv">
+            <span>🔍</span> Uji &amp; Hitung Invers Matriks
+          </button>
+
+          <div id="matrix-calc-result-box" style="display: none; margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8;">
+            <div id="mcalc-status" style="margin-bottom: 8px;">-</div>
+            <div><strong>Determinan mentah:</strong> <span id="mcalc-det-raw">-</span></div>
+            <div><strong>det(K) mod 26:</strong> <span id="mcalc-det-mod" style="color: var(--accent-cyan);">-</span></div>
+            <div><strong>Invers determinan mod 26:</strong> <span id="mcalc-det-inv" style="color: var(--accent-green);">-</span></div>
+            <div><strong>Matriks Adjugate (mod 26):</strong> <code id="mcalc-adj-matrix">-</code></div>
+            <div><strong>Invers Matriks K<sup>-1</sup> mod 26:</strong> <code id="mcalc-inv-matrix" style="color: #38bdf8; font-weight: bold;">-</code></div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================================================
+         TAB 4: KELOMPOK & DOKUMEN TUGAS
+         =================================================================== -->
+    <section id="tab-team" class="tab-content" aria-label="Kelompok & Dokumentasi">
+      
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h2 class="card-title"><span>👥</span> Anggota Kelompok</h2>
+            <p class="card-subtitle" style="margin-bottom: 0;">
+              Tugas Mata Kuliah <strong>Kriptografi PSDKU Informatika</strong> Semester Ganjil 2026/2027 (Kelompok 4 Orang).
+              Anda dapat memperbarui Nama, NIM, dan Peran di bawah ini.
+            </p>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-save-team">
+            💾 Simpan Data Kelompok
+          </button>
+        </div>
+
+        <!-- 4 Team Member Cards -->
+        <div class="team-grid">
+          
+          <!-- Member 1 -->
+          <div class="member-card">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="member-avatar">1</div>
+              <div style="flex: 1;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Nama Anggota 1:</label>
+                <input type="text" class="member-name-input" id="team-name-0" value="Anggota 1">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">NIM:</label>
+              <input type="text" class="member-nim-input" id="team-nim-0" placeholder="NIM Mahasiswa" value="2308561001">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Peran / Tanggung Jawab:</label>
+              <input type="text" class="member-role-input" id="team-role-0" value="Lead Developer & Bagian A (Cipher 1-4)">
+            </div>
+          </div>
+
+          <!-- Member 2 -->
+          <div class="member-card">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="member-avatar">2</div>
+              <div style="flex: 1;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Nama Anggota 2:</label>
+                <input type="text" class="member-name-input" id="team-name-1" value="Anggota 2">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">NIM:</label>
+              <input type="text" class="member-nim-input" id="team-nim-1" placeholder="NIM Mahasiswa" value="2308561002">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Peran / Tanggung Jawab:</label>
+              <input type="text" class="member-role-input" id="team-role-1" value="Bagian A (Hill & Permutation Cipher)">
+            </div>
+          </div>
+
+          <!-- Member 3 -->
+          <div class="member-card">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="member-avatar">3</div>
+              <div style="flex: 1;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Nama Anggota 3:</label>
+                <input type="text" class="member-name-input" id="team-name-2" value="Anggota 3">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">NIM:</label>
+              <input type="text" class="member-nim-input" id="team-nim-2" placeholder="NIM Mahasiswa" value="2308561003">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Peran / Tanggung Jawab:</label>
+              <input type="text" class="member-role-input" id="team-role-2" value="Bagian A (One-Time Pad) & File Handling">
+            </div>
+          </div>
+
+          <!-- Member 4 -->
+          <div class="member-card">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="member-avatar">4</div>
+              <div style="flex: 1;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Nama Anggota 4:</label>
+                <input type="text" class="member-name-input" id="team-name-3" value="Anggota 4">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">NIM:</label>
+              <input type="text" class="member-nim-input" id="team-nim-3" placeholder="NIM Mahasiswa" value="2308561004">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Peran / Tanggung Jawab:</label>
+              <input type="text" class="member-role-input" id="team-role-3" value="Bagian B (Kriptanalisis & Optimasi Solver)">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Specifications Checklist Card -->
+      <div class="card">
+        <h2 class="card-title"><span>📋</span> Spesifikasi &amp; Pemenuhan Kebutuhan Tugas</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 14px; font-size: 0.9rem;">
+          <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+            <strong style="color: var(--accent-cyan);">✓ Bagian A: 7 Algoritma Klasik</strong>
+            <ul style="margin-left: 20px; margin-top: 6px; color: var(--text-muted); line-height: 1.6;">
+              <li>Shift Cipher (Enkripsi, Dekripsi, Slider/Num Key)</li>
+              <li>Substitution Cipher (Validasi 26 alfabet unik, Acak key)</li>
+              <li>Affine Cipher (Validasi gcd(a,26)==1, Invers modulo)</li>
+              <li>Vigenere Cipher (Alfabet 26 huruf, abaikan spasi &amp; angka)</li>
+              <li>Hill Cipher (Matriks 2&times;2 dan 3&times;3, Invers mod 26)</li>
+              <li>Permutation Cipher (Transposisi blok angka &amp; keyword)</li>
+              <li>One-Time Pad (File upload .txt, Random key generator)</li>
+            </ul>
+          </div>
+          <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+            <strong style="color: #c084fc;">✓ Bagian B: Kriptanalisis Abjad-Tunggal</strong>
+            <ul style="margin-left: 20px; margin-top: 6px; color: var(--text-muted); line-height: 1.6;">
+              <li>Analisis Frekuensi Huruf (Unigram Chart visual)</li>
+              <li>Index of Coincidence (IoC Evaluator)</li>
+              <li>Analisis Top Bigram &amp; Trigram</li>
+              <li>Dukungan Bahasa Indonesia &amp; English</li>
+              <li>Otomatisasi Hill Climbing Heuristic Solver</li>
+              <li>Interactive Letter Replacement Workbench</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="/static/js/ciphers.js"></script>
+  <script src="/static/js/cryptanalysis.js"></script>
+  <script src="/static/js/math_explorer.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
